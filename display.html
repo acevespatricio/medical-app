@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil Médico</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; }
+        .profile-card { max-width: 600px; margin: auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        h1, h2 { text-align: center; color: #333; }
+        p { margin: 8px 0; }
+        strong { color: #555; }
+        hr { border: 0; height: 1px; background-color: #ddd; margin: 20px 0; }
+        .info-section h3 { margin-top: 20px; color: #007bff; }
+    </style>
+</head>
+<body>
+    <div id="profile-container" class="profile-card">Cargando...</div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+
+        const container = document.getElementById('profile-container');
+
+        if (id) {
+            fetch(`http://localhost:3000/profile/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        container.innerHTML = `<h2>Perfil no encontrado</h2><p>El ID proporcionado no corresponde a ningún perfil.</p>`;
+                    } else {
+                        container.innerHTML = `
+                            <div class="profile-card">
+                                <h2>Perfil Médico</h2>
+                                <p><strong>Nombre Completo:</strong> ${data.name}</p>
+                                <p><strong>Fecha de Nacimiento:</strong> ${data.dob}</p>
+                                <p><strong>Grupo Sanguíneo:</strong> ${data.bloodType}</p>
+                                <p><strong>Alergias:</strong> ${data.allergies || 'Ninguna'}</p>
+                                <p><strong>Condiciones Médicas:</strong> ${data.conditions || 'Ninguna'}</p>
+
+                                <hr>
+
+                                <div class="info-section">
+                                    <h3>Información de Emergencia</h3>
+                                    <p><strong>Número de Seguridad Social:</strong> ${data.socialSecurityNumber || 'N/A'}</p>
+                                    <p><strong>Número de Póliza de Seguro:</strong> ${data.insurancePolicy || 'N/A'}</p>
+                                    <p><strong>Contacto de Emergencia:</strong> ${data.emergencyContactName || 'N/A'}</p>
+                                    <p><strong>Teléfono:</strong> ${data.emergencyContactPhone || 'N/A'}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    container.innerHTML = `<h2>Error al cargar el perfil.</h2><p>Por favor, inténtalo de nuevo más tarde.</p>`;
+                    console.error('Error:', error);
+                });
+        } else {
+            container.innerHTML = `<h2>No se proporcionó ID.</h2><p>Escanea un chip NFC para ver un perfil.</p>`;
+        }
+    </script>
+</body>
+</html>
