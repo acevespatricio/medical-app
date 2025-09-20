@@ -24,7 +24,7 @@
         const container = document.getElementById('profile-container');
 
         if (id) {
-            fetch(`http://localhost:3000/profile/${id}`)
+            fetch(`https://medical-app-backend-xrvw.onrender.com/profile/${id}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
