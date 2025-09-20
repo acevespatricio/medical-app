@@ -100,6 +100,12 @@
                 emergencycontactphone: document.getElementById('emergencycontactphone').value,
             };
 
+            // This part is crucial, we must add the URL field for PUT requests
+            if (method === 'PUT') {
+                const existingUrl = `https://acevespatricio.github.io/medical-app/display.html?id=${recordId}`;
+                data.url = existingUrl;
+            }
+
             try {
                 const response = await fetch(url, {
                     method: method,
