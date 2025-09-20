@@ -51,7 +51,7 @@
                                 <button class="delete-btn" data-id="${record.id}">Eliminar</button>
                             </div>
                             <h3>${record.name}</h3>
-                            <p><strong>Grupo Sanguíneo:</strong> ${record.bloodtype}</p>
+                            <p><strong>URL:</strong> <a href="${record.url}" target="_blank">${record.url.substring(0, 40)}...</a></p>
                             <a href="display.html?id=${record.id}" target="_blank">Ver perfil completo</a>
                         </div>
                     `;
