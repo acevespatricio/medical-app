@@ -5,60 +5,184 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil Médico</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; }
-        .profile-card { max-width: 600px; margin: auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-        h1, h2 { text-align: center; color: #333; }
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --card-bg: #fff;
+            --border-color: #dee2e6;
+            --shadow-light: rgba(0, 0, 0, 0.05);
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            background-color: var(--light-bg);
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px var(--shadow-light);
+        }
+        h1, h2 {
+            text-align: center;
+            color: var(--dark-bg);
+            margin-bottom: 1.5rem;
+        }
+        .action-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 2rem;
+            transition: background-color 0.3s;
+        }
+        .action-button:hover {
+            background-color: #0056b3;
+        }
+        .record-entry, .profile-card {
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px var(--shadow-light);
+            display: flex;
+            flex-direction: column;
+        }
+        .record-entry h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .record-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        .edit-btn, .delete-btn {
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .edit-btn {
+            background-color: var(--warning-color);
+            color: var(--dark-bg);
+            text-decoration: none;
+        }
+        .edit-btn:hover {
+            background-color: #e0a800;
+        }
+        .delete-btn {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+        .url-link {
+            font-size: 0.9rem;
+            color: var(--info-color);
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+        }
         p { margin: 8px 0; }
-        strong { color: #555; }
-        hr { border: 0; height: 1px; background-color: #ddd; margin: 20px 0; }
-        .info-section h3 { margin-top: 20px; color: #007bff; }
+        strong { color: var(--secondary-color); }
+        hr { border: 0; height: 1px; background-color: var(--border-color); margin: 20px 0; }
+        .info-section h3 { margin-top: 20px; color: var(--primary-color); }
+        .button-group { display: flex; justify-content: space-between; margin-top: 20px; }
+        .back-btn { background-color: var(--secondary-color); color: white; text-decoration: none; padding: 10px 15px; border-radius: 4px; }
+        .back-btn:hover { background-color: #5a6268; }
+        /* Estilos específicos para el formulario */
+        label, input, textarea { display: block; width: 100%; margin-bottom: 15px; }
+        input[type="text"], input[type="date"], input[type="tel"], textarea { 
+            padding: 12px; 
+            border: 1px solid var(--border-color); 
+            border-radius: 5px; 
+            box-sizing: border-box;
+        }
+        input[type="submit"] { 
+            background-color: var(--success-color); 
+            color: white; 
+            padding: 14px 20px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-size: 1rem; 
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        input[type="submit"]:hover { background-color: #218838; }
+        .result { margin-top: 20px; text-align: center; }
     </style>
 </head>
 <body>
     <div id="profile-container" class="profile-card">Cargando...</div>
 
     <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get('id');
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
 
-    const container = document.getElementById('profile-container');
+        const container = document.getElementById('profile-container');
+        const BACKEND_URL = 'https://medical-app-backend-xrvw.onrender.com';
 
-    if (id) {
-        fetch(`https://medical-app-backend-xrvw.onrender.com/profile/${id}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    container.innerHTML = `<h2>Perfil no encontrado</h2><p>El ID proporcionado no corresponde a ningún perfil.</p>`;
-                } else {
-                    container.innerHTML = `
-                        <div class="profile-card">
-                            <h2>Perfil Médico</h2>
-                            <p><strong>Nombre Completo:</strong> ${data.name}</p>
-                            <p><strong>Fecha de Nacimiento:</strong> ${data.dob}</p>
-                            <p><strong>Grupo Sanguíneo:</strong> ${data.bloodtype}</p>
-                            <p><strong>Alergias:</strong> ${data.allergies || 'Ninguna'}</p>
-                            <p><strong>Condiciones Médicas:</strong> ${data.conditions || 'Ninguna'}</p>
+        if (id) {
+            fetch(`${BACKEND_URL}/profile/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        container.innerHTML = `<h2>Error: ${data.error}</h2>`;
+                    } else {
+                        container.innerHTML = `
+                            <div>
+                                <h2>Perfil de ${data.name}</h2>
+                                <p><strong>Fecha de Nacimiento:</strong> ${data.dob}</p>
+                                <p><strong>Grupo Sanguíneo:</strong> ${data.bloodtype}</p>
+                                <p><strong>Alergias:</strong> ${data.allergies || 'Ninguna'}</p>
+                                <p><strong>Condiciones Médicas:</strong> ${data.conditions || 'Ninguna'}</p>
 
-                            <hr>
+                                <hr>
 
-                            <div class="info-section">
-                                <h3>Información de Emergencia</h3>
-                                <p><strong>Número de Seguridad Social:</strong> ${data.socialsecuritynumber || 'N/A'}</p>
-                                <p><strong>Número de Póliza de Seguro:</strong> ${data.insurancepolicy || 'N/A'}</p>
-                                <p><strong>Contacto de Emergencia:</strong> ${data.emergencycontactname || 'N/A'}</p>
-                                <p><strong>Teléfono:</strong> ${data.emergencycontactphone || 'N/A'}</p>
+                                <div class="info-section">
+                                    <h3>Información de Emergencia</h3>
+                                    <p><strong>Número de Seguridad Social:</strong> ${data.socialsecuritynumber || 'N/A'}</p>
+                                    <p><strong>Número de Póliza de Seguro:</strong> ${data.insurancepolicy || 'N/A'}</p>
+                                    <p><strong>Contacto de Emergencia:</strong> ${data.emergencycontactname || 'N/A'}</p>
+                                    <p><strong>Teléfono:</strong> ${data.emergencycontactphone || 'N/A'}</p>
+                                </div>
                             </div>
-                        </div>
-                    `;
-                }
-            })
-            .catch(error => {
-                container.innerHTML = `<h2>Error al cargar el perfil.</h2><p>Por favor, inténtalo de nuevo más tarde.</p>`;
-                console.error('Error:', error);
-            });
-    } else {
-        container.innerHTML = `<h2>No se proporcionó ID.</h2><p>Escanea un chip NFC para ver un perfil.</p>`;
-    }
-</script>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    container.innerHTML = `<h2>Error al cargar el perfil.</h2><p>Por favor, inténtalo de nuevo más tarde.</p>`;
+                    console.error('Error:', error);
+                });
+        } else {
+            container.innerHTML = `<h2>No se proporcionó ID.</h2><p>Escanea un chip NFC para ver un perfil.</p>`;
+        }
+    </script>
 </body>
 </html>
