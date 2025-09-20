@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Información Médica</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        h1, h2 { text-align: center; color: #333; }
+        label, input, textarea { display: block; width: 100%; margin-bottom: 10px; }
+        input[type="text"], input[type="date"], input[type="tel"], textarea { padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        input[type="submit"] { background-color: #007bff; color: white; padding: 14px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        input[type="submit"]:hover { background-color: #0056b3; }
+        .result { margin-top: 20px; text-align: center; }
+        .result a { color: #007bff; text-decoration: none; font-weight: bold; }
+        hr { border: 0; height: 1px; background-color: #ddd; margin: 20px 0; }
+        .button-group { display: flex; justify-content: space-between; margin-top: 20px; }
+        .back-btn { background-color: #6c757d; color: white; text-decoration: none; padding: 10px 15px; border-radius: 4px; }
+        .back-btn:hover { background-color: #5a6268; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="form-title">Crear Nuevo Registro</h1>
+        <form id="medicalForm">
+            <input type="hidden" id="record-id">
+            <label for="name">Nombre Completo:</label>
+            <input type="text" id="name" required>
+            <label for="dob">Fecha de Nacimiento:</label>
+            <input type="date" id="dob" required>
+            <label for="bloodtype">Grupo Sanguíneo:</label>
+            <input type="text" id="bloodtype" placeholder="Ej: A+, O-" required>
+            <label for="allergies">Alergias:</label>
+            <textarea id="allergies" rows="4" placeholder="Ej: Penicilina, látex..."></textarea>
+            <label for="conditions">Condiciones Médicas:</label>
+            <textarea id="conditions" rows="4" placeholder="Ej: Diabetes, asma..."></textarea>
+            <hr>
+            <h2>Información de Contacto y Emergencia</h2>
+            <label for="socialsecuritynumber">Número de Seguridad Social:</label>
+            <input type="text" id="socialsecuritynumber">
+            <label for="insurancepolicy">Número de Póliza de Seguro:</label>
+            <input type="text" id="insurancepolicy">
+            <label for="emergencycontactname">Nombre del Contacto de Emergencia:</label>
+            <input type="text" id="emergencycontactname">
+            <label for="emergencycontactphone">Teléfono del Contacto de Emergencia:</label>
+            <input type="tel" id="emergencycontactphone">
+            <input type="submit" value="Guardar Registro">
+        </form>
+        <div id="result" class="result"></div>
+        <div class="button-group">
+            <a href="index.html" class="back-btn">Regresar al listado</a>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('medicalForm');
+        const formTitle = document.getElementById('form-title');
+        const recordIdInput = document.getElementById('record-id');
+        const resultDiv = document.getElementById('result');
+        const urlParams = new URLSearchParams(window.location.search);
+        const recordId = urlParams.get('id');
+        const BACKEND_URL = 'https://medical-app-backend-xrvw.onrender.com';
+
+        if (recordId) {
+            formTitle.textContent = 'Editar Registro';
+            fetch(`${BACKEND_URL}/profile/${recordId}`)
+                .then(res => res.json())
+                .then(record => {
+                    recordIdInput.value = record.id;
+                    document.getElementById('name').value = record.name;
+                    document.getElementById('dob').value = record.dob;
+                    document.getElementById('bloodtype').value = record.bloodtype;
+                    document.getElementById('allergies').value = record.allergies;
+                    document.getElementById('conditions').value = record.conditions;
+                    document.getElementById('socialsecuritynumber').value = record.socialsecuritynumber;
+                    document.getElementById('insurancepolicy').value = record.insurancepolicy;
+                    document.getElementById('emergencycontactname').value = record.emergencycontactname;
+                    document.getElementById('emergencycontactphone').value = record.emergencycontactphone;
+                })
+                .catch(err => {
+                    resultDiv.innerHTML = `<p style="color:red;">Error al cargar el registro para editar.</p>`;
+                });
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const method = recordId ? 'PUT' : 'POST';
+            const url = recordId ? `${BACKEND_URL}/records/${recordId}` : `${BACKEND_URL}/save`;
+
+            const data = {
+                name: document.getElementById('name').value,
+                dob: document.getElementById('dob').value,
+                bloodtype: document.getElementById('bloodtype').value,
+                allergies: document.getElementById('allergies').value,
+                conditions: document.getElementById('conditions').value,
+                socialsecuritynumber: document.getElementById('socialsecuritynumber').value,
+                insurancepolicy: document.getElementById('insurancepolicy').value,
+                emergencycontactname: document.getElementById('emergencycontactname').value,
+                emergencycontactphone: document.getElementById('emergencycontactphone').value,
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+                if (response.ok) {
+                    const result = await response.json();
+                    const uniqueUrl = result.url ? result.url : `https://acevespatricio.github.io/medical-app/display.html?id=${recordId}`;
+                    resultDiv.innerHTML = `
+                        <p>¡Datos guardados! Tu URL única es:</p>
+                        <a href="${uniqueUrl}" target="_blank">${uniqueUrl}</a>
+                    `;
+                } else {
+                    throw new Error('Fallo al guardar el registro.');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
